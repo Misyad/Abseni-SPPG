@@ -127,8 +127,11 @@ pipeline {
           install -m 600 infra/docker-compose.yml "$COMPOSE_FILE"
           if [ ! -f "$ENV_FILE" ]; then
             APP_KEY=$(docker run --rm "$BACKEND_TEST_IMAGE" php artisan key:generate --show --no-ansi)
-            DB_ROOT_PASSWORD=*** run --rm alpine:3.21 sh -c 'tr -dc A-Za-z0-9 </dev/urandom | head -c 40')
-            DB_PASSWORD=*** run --rm alpine:3.21 sh -c 'tr -dc A-Za-z0-9 </dev/urandom | head -c 40')
+            docker run --rm alpine:3.21 sh -c 'tr -dc A-Za-z0-9 </dev/urandom | head -c 40' > "$DEPLOY_DIR/.db-root-password"
+            docker run --rm alpine:3.21 sh -c 'tr -dc A-Za-z0-9 </dev/urandom | head -c 40' > "$DEPLOY_DIR/.db-password"
+            IFS= read -r DB_ROOT_PASSWORD < "$DEPLOY_DIR/.db-root-password"
+            IFS= read -r DB_PASSWORD < "$DEPLOY_DIR/.db-password"
+            rm -f "$DEPLOY_DIR/.db-root-password" "$DEPLOY_DIR/.db-password"
             umask 077
             cat > "$ENV_FILE" <<EOF
 APP_ENV=production
