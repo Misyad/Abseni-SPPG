@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Laravel build & cache
+/backend/bootstrap/cache/*
+!/backend/bootstrap/cache/.gitignore
+/backend/storage/*.key
+/backend/storage/app/private/
+/backend/storage/app/public/
+/backend/storage/framework/cache/*
+/backend/storage/framework/sessions/*
+/backend/storage/framework/views/*
+/backend/storage/logs/*
+/backend/storage/test-results/*
+!/backend/storage/test-results/.gitignore
+
+# Next.js build & cache
+/frontend/.next/
+/frontend/out/
+/frontend/build/
+/frontend/tsconfig.tsbuildinfo
+
+# IDE & OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Temporary & Log files
+*.log
+scratch/
+tmp/
