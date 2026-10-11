@@ -114,7 +114,7 @@ services:
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
-        printf '%s\n' ':8080 {' '  encode gzip' '  request_body { max_size 6MB }' '  handle /api/* {' '    reverse_proxy backend:80' '  }' '  handle /up {' '    reverse_proxy backend:80' '  }' '  handle {' '    reverse_proxy frontend:3000' '  }' '}' > /tmp/Caddyfile
+        printf '%s\n' ':8080 {' '  encode gzip' '  request_body {' '    max_size 6MB' '  }' '  handle /api/* {' '    reverse_proxy backend:80' '  }' '  handle /up {' '    reverse_proxy backend:80' '  }' '  handle {' '    reverse_proxy frontend:3000' '  }' '}' > /tmp/Caddyfile
         exec caddy run --config /tmp/Caddyfile --adapter caddyfile
     networks:
       - app
