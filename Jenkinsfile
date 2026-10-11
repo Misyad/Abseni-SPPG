@@ -83,8 +83,8 @@ pipeline {
     stage('Validate Images') {
       steps {
         sh 'docker image inspect "absensi-sppg-backend:$IMAGE_TAG" "absensi-sppg-frontend:$IMAGE_TAG" >/dev/null'
-        sh 'test "$(docker image inspect --format="{{ index .Config.Labels \"org.opencontainers.image.revision\" }}" "absensi-sppg-backend:$IMAGE_TAG")" = "$VCS_REF"'
-        sh 'test "$(docker image inspect --format="{{ index .Config.Labels \"org.opencontainers.image.revision\" }}" "absensi-sppg-frontend:$IMAGE_TAG")" = "$VCS_REF"'
+        sh '''test "$(docker image inspect --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}' "absensi-sppg-backend:$IMAGE_TAG")" = "$VCS_REF"'''
+        sh '''test "$(docker image inspect --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}' "absensi-sppg-frontend:$IMAGE_TAG")" = "$VCS_REF"'''
         sh '''
           docker run -d --name "absensi-backend-smoke-$BUILD_NUMBER" \
             -e APP_ENV=testing \
