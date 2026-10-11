@@ -156,9 +156,9 @@ EOF
 
           sed -i "/^APP_VERSION=/c\\APP_VERSION=$IMAGE_TAG" "$ENV_FILE"
           sed -i "/^VCS_REF=/c\\VCS_REF=$VCS_REF" "$ENV_FILE"
-          docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" config --quiet
-          docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d --no-build --remove-orphans
-          docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" exec -T backend php artisan migrate --force
+          docker compose -p absensi-sppg --env-file "$ENV_FILE" -f "$COMPOSE_FILE" config --quiet
+          docker compose -p absensi-sppg --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d --no-build --remove-orphans
+          docker compose -p absensi-sppg --env-file "$ENV_FILE" -f "$COMPOSE_FILE" exec -T backend php artisan migrate --force
         '''
       }
     }
@@ -175,8 +175,8 @@ EOF
             [ "$backend" = 200 ] && [ "$frontend" = 200 ] && [ "$api" = 200 ] && exit 0
             sleep 2
           done
-          docker compose --env-file "$DEPLOY_DIR/.env" -f "$DEPLOY_DIR/docker-compose.yml" ps
-          docker compose --env-file "$DEPLOY_DIR/.env" -f "$DEPLOY_DIR/docker-compose.yml" logs --tail=100
+          docker compose -p absensi-sppg --env-file "$DEPLOY_DIR/.env" -f "$DEPLOY_DIR/docker-compose.yml" ps
+          docker compose -p absensi-sppg --env-file "$DEPLOY_DIR/.env" -f "$DEPLOY_DIR/docker-compose.yml" logs --tail=100
           exit 1
         '''
       }
