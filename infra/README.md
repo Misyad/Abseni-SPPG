@@ -1,6 +1,6 @@
 # Infrastruktur Lokal dan CI
 
-Konfigurasi ini belum melakukan deployment. Semua port aplikasi lokal hanya bind ke `127.0.0.1`; MySQL tidak dipublikasikan ke host.
+Konfigurasi ini mendukung deployment Jenkins. Proxy same-origin dipublikasikan pada `APP_PORT`; MySQL tidak dipublikasikan ke host.
 
 ## Prasyarat lokal
 
@@ -14,7 +14,11 @@ APP_ENV=local
 APP_DEBUG=false
 APP_KEY=base64:GANTI_DENGAN_HASIL_PHP_ARTISAN_KEY_GENERATE_SHOW
 APP_URL=http://localhost:8040
-PUBLIC_API_BASE_URL=http://localhost:8040/api/v1
+PUBLIC_API_BASE_URL=/api/v1
+APP_BIND_ADDRESS=127.0.0.1
+APP_PORT=3040
+FRONTEND_PORT=3041
+BACKEND_PORT=8040
 DB_DATABASE=absensi_sppg
 DB_USERNAME=sppg_user
 DB_PASSWORD=GANTI_PASSWORD_APLIKASI
@@ -29,6 +33,7 @@ docker compose --env-file infra/.env -f infra/docker-compose.yml up -d --build
 docker compose --env-file infra/.env -f infra/docker-compose.yml ps
 curl --fail http://127.0.0.1:8040/up
 curl --fail http://127.0.0.1:3040/
+curl --fail http://127.0.0.1:3040/api/v1/public/employees
 ```
 
 Migrasi non-destruktif:
@@ -69,12 +74,13 @@ docker run --rm -v absensi-sppg_private_selfies:/data -v "$PWD":/backup \
 
 Uji restore wajib dilakukan pada lingkungan terpisah sebelum staging.
 
-## Batas CI
+## Jenkins
 
-`Jenkinsfile` hanya checkout, format/lint, test, build, validasi label image, publikasi JUnit, dan arsip laporan. Tidak ada push registry, SSH, deployment, perubahan Cloudflare Tunnel, atau akses database production.
+`Jenkinsfile` checkout, format/lint, test, build, validasi image, lalu deploy memakai `$JENKINS_HOME/absensi-sppg-deploy`. Secret dibuat sekali pada `.env` mode `0600`; redeploy memakai volume database/selfie yang sama. Cloudflare Tunnel tidak diubah.
+
 ## URL API browser
 
-- Compose ini khusus browser pada workstation yang sama dan memakai `PUBLIC_API_BASE_URL=http://localhost:8040/api/v1`.
-- `localhost` tidak boleh dipakai oleh image staging/production atau browser pada HP.
-- Akses perangkat lain memerlukan reverse proxy HTTPS same-origin dengan nilai `/api/v1` sesuai `docs/API_URL_STRATEGY.md`.
+- Compose menyajikan frontend dan API melalui proxy same-origin dengan `PUBLIC_API_BASE_URL=/api/v1`.
+- Lokal memakai `APP_BIND_ADDRESS=127.0.0.1`; Jenkins memakai `0.0.0.0` agar port aplikasi dapat diakses dari LAN.
+- Akses publik tetap memerlukan reverse proxy HTTPS atau Cloudflare Tunnel terpisah.
 - Hostname staging/production belum ditetapkan.

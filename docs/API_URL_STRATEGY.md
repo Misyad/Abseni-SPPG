@@ -7,7 +7,7 @@ Dokumen ini menetapkan strategi `NEXT_PUBLIC_API_BASE_URL` sebelum perubahan kon
 | Lingkungan | Nilai browser | Ketentuan |
 |---|---|---|
 | Development pada workstation | URL eksplisit, misalnya `http://localhost:8000/api/v1` | Hanya untuk browser pada workstation yang sama melalui `frontend/.env.local`; file tetap diabaikan Git. |
-| Docker Compose lokal | Default `http://localhost:8040/api/v1` | Hanya untuk browser pada host Docker yang sama. Compose mengikat port ke `127.0.0.1`. |
+| Docker Compose lokal | Same-origin `/api/v1` | Proxy Compose menyajikan frontend dan API pada `APP_PORT`; default bind ke `127.0.0.1`. |
 | Uji dari HP/perangkat lain | Same-origin `/api/v1` | Wajib memakai reverse proxy HTTPS yang menyajikan frontend dan meneruskan `/api/v1` ke backend. Hostname lokal belum ditentukan. |
 | Staging | Same-origin `/api/v1` | Reverse proxy/ingress meneruskan `/api/v1` ke Laravel. Hostname staging belum ditentukan. |
 | Production | Same-origin `/api/v1` | Reverse proxy/ingress meneruskan `/api/v1` ke Laravel. Hostname production belum ditentukan. |
@@ -21,7 +21,7 @@ Dokumen ini menetapkan strategi `NEXT_PUBLIC_API_BASE_URL` sebelum perubahan kon
 2. `PinPad` memakai helper verifikasi PIN yang sudah tersedia; tidak membuat URL sendiri.
 3. URL media admin memakai helper base URL yang sama.
 4. Default build `frontend/Dockerfile` dan build Jenkins menjadi `/api/v1`.
-5. `infra/docker-compose.yml` mempertahankan override `localhost` khusus development workstation; penggunaan dari perangkat lain tidak didukung tanpa reverse proxy.
+5. `infra/docker-compose.yml` menyediakan proxy same-origin; bind lokal tetap `127.0.0.1`, sedangkan deployment LAN dapat mengubah `APP_BIND_ADDRESS`.
 6. Pipeline tidak menetapkan hostname staging atau production.
 
 ## Prasyarat reverse proxy

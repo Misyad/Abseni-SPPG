@@ -40,8 +40,6 @@ services:
       MAIL_MAILER: array
       QUEUE_CONNECTION: sync
       SESSION_DRIVER: array
-    volumes:
-      - ../backend/storage/test-results:/var/www/html/storage/test-results
     depends_on:
       test_db:
         condition: service_healthy

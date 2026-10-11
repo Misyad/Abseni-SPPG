@@ -87,18 +87,46 @@ services:
       args:
         APP_VERSION: ${APP_VERSION:-local}
         VCS_REF: ${VCS_REF:-unknown}
-        NEXT_PUBLIC_API_BASE_URL: ${PUBLIC_API_BASE_URL:-http://localhost:8040/api/v1}
+        NEXT_PUBLIC_API_BASE_URL: ${PUBLIC_API_BASE_URL:-/api/v1}
     image: ${FRONTEND_IMAGE:-absensi-sppg-frontend}:${APP_VERSION:-local}
     restart: unless-stopped
     networks:
       - app
     ports:
-      - "127.0.0.1:${FRONTEND_PORT:-3040}:3000"
+      - "127.0.0.1:${FRONTEND_PORT:-3041}:3000"
     depends_on:
       backend:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:3000/ >/dev/null || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+  proxy:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        printf '%s\n' ':8080 {' '  encode gzip' '  request_body { max_size 6MB }' '  handle /api/* {' '    reverse_proxy backend:80' '  }' '  handle /up {' '    reverse_proxy backend:80' '  }' '  handle {' '    reverse_proxy frontend:3000' '  }' '}' > /tmp/Caddyfile
+        exec caddy run --config /tmp/Caddyfile --adapter caddyfile
+    networks:
+      - app
+    ports:
+      - "${APP_BIND_ADDRESS:-127.0.0.1}:${APP_PORT:-3040}:8080"
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/up"]
       interval: 15s
       timeout: 5s
       retries: 5

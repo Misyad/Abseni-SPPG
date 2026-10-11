@@ -31,7 +31,13 @@ COPY composer.json composer.lock ./
 RUN composer install --prefer-dist --no-interaction --no-progress --no-scripts
 COPY . .
 RUN composer dump-autoload --optimize --no-interaction \
-    && mkdir -p storage/test-results \
+    && mkdir -p \
+        storage/framework/cache/data \
+        storage/framework/sessions \
+        storage/framework/testing \
+        storage/framework/views \
+        storage/logs \
+        storage/test-results \
     && chown -R www-data:www-data storage bootstrap/cache
 
 FROM base AS production
@@ -45,6 +51,12 @@ COPY composer.json composer.lock ./
 RUN composer install --no-dev --prefer-dist --no-interaction --no-progress --no-scripts --optimize-autoloader
 COPY . .
 RUN composer dump-autoload --no-dev --optimize --no-interaction \
+    && mkdir -p \
+        storage/app/private \
+        storage/framework/cache/data \
+        storage/framework/sessions \
+        storage/framework/views \
+        storage/logs \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R ug+rwX storage bootstrap/cache
 
